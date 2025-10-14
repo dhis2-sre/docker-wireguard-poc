@@ -1,0 +1,68 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      #- ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - internal
+
+  grafana:
+    image: grafana/grafana:latest
+    networks:
+      internal:
+        ipv4_address: 172.20.0.100
+    environment:
+      - GF_SERVER_ROOT_URL=http://grafana.internal
+      - GF_SERVER_DOMAIN=grafana.internal
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+  wireguard:
+    image: linuxserver/wireguard:latest
+    cap_add:
+      - NET_ADMIN
+      #- SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Bangkok
+      - SERVERURL=auto
+      - SERVERPORT=51820
+      - PEERS=laptop,phone,tablet
+      - PEERDNS=172.20.0.199
+      - INTERNAL_SUBNET=172.20.0.0
+      - ALLOWEDIPS=172.20.0.0/24
+    volumes:
+      - ./wireguard:/config
+      #- /lib/modules:/lib/modules:ro
+    ports:
+      - "51822:51820/udp"
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      internal:
+        ipv4_address: 172.20.0.200
+
+  coredns:
+    image: coredns/coredns:latest
+    volumes:
+      - ./coredns/Corefile:/Corefile:ro
+      - ./coredns/db.internal:/db.internal:ro
+    networks:
+      internal:
+        ipv4_address: 172.20.0.199
+    command: -conf /Corefile
+
+networks:
+  internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+volumes:
+  grafana-data:
