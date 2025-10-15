@@ -37,7 +37,6 @@ services:
       - ALLOWEDIPS=172.20.0.0/24
     volumes:
       - ./wireguard:/config
-      #- /lib/modules:/lib/modules:ro
     ports:
       - "51822:51820/udp"
     sysctls:
