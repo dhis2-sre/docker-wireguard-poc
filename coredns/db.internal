@@ -11,4 +11,4 @@ internal.       IN SOA ns.internal. admin.internal. (
 internal.       IN NS ns.internal.
 ns.internal.    IN A 172.20.0.199
 
-grafana.internal. IN A 172.20.0.100
+grafana.internal. IN A 172.20.0.198
