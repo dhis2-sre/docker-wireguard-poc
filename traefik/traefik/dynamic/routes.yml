@@ -1,0 +1,53 @@
+http:
+  routers:
+    # App1 - HTTP to HTTPS redirect (Let's Encrypt)
+    app1-http:
+      rule: "Host(`app1-91-108-122-249.nip.io`)"
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+      service: app1
+
+    # App1 - HTTPS with Let's Encrypt
+    app1-https:
+      rule: "Host(`app1-91-108-122-249.nip.io`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      service: app1
+
+    # App2 - HTTP to HTTPS redirect (self-signed)
+    app2-http:
+      rule: "Host(`app2-91-108-122-249.nip.io`)"
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+      service: app2
+
+    # App2 - HTTPS with self-signed cert
+    app2-https:
+      rule: "Host(`app2-91-108-122-249.nip.io`)"
+      entryPoints:
+        - websecure
+      tls: {}
+      service: app2
+
+  services:
+    app1:
+      loadBalancer:
+        servers:
+          - url: "http://app1:80"
+
+    app2:
+      loadBalancer:
+        servers:
+          - url: "http://app2:80"
+
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+        permanent: true

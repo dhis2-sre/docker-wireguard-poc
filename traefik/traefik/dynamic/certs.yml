@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /certs/app2-91-108-122-249.nip.io.crt
+      keyFile: /certs/app2-91-108-122-249.nip.io.key
