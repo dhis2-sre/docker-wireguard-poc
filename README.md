@@ -21,3 +21,19 @@ Update "Endpoint" port for service to match what's in the docker compose file.
 ```shell
 nmcli connection import type wireguard file ./peer.conf
 ```
+
+## Get root CA
+
+```shell
+docker compose cp mkcert:/root/.local/share/mkcert/rootCA.pem .
+```
+
+# Get server config...
+
+```shell
+docker compose exec wireguard cat /config/wg_confs/wg0.conf
+```
+
+# TODO
+
+* Skip the wildcard cert and generate exactly what we need

@@ -1,0 +1,28 @@
+entryPoints:
+  web:
+    address: :80
+  websecure:
+    address: :443
+
+providers:
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /etc/traefik/certs/internal.crt
+        keyFile: /etc/traefik/certs/internal.key
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: devops@dhis2.org
+      storage: /etc/traefik/acme.json
+      httpChallenge:
+        entryPoint: web
+
+api:
+  insecure: true

@@ -1,0 +1,53 @@
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+  https:
+    address: ":443"
+
+api:
+  insecure: true
+
+http:
+  routers:
+    grafana:
+      rule: Host(`grafana.internal`)
+      entrypoints: https
+      tls:
+        store: internal
+      service: grafana
+    app:
+      rule: Host(`app-91-108-122-249.nip.io`)
+      entrypoints: https
+      tls:
+        certResolver: letsencrypt
+      service: app
+  services:
+    grafana:
+      loadBalancer:
+        servers:
+          - url: http://grafana:3000
+    app:
+      loadBalancer:
+        servers:
+          - url: http://app:80
+
+tls:
+  stores:
+    default: {}
+    internal:
+      defaultCertificate:
+        certFile: /etc/traefik/certs/internal.crt
+        keyFile: /etc/traefik/certs/internal.key
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: devops@dhis2.org
+      storage: /etc/traefik/acme.json
+      httpChallenge:
+        entryPoint: http

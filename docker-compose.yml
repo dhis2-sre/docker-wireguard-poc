@@ -1,26 +1,49 @@
 services:
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
+  mkcert:
+    image: vishnunair/docker-mkcert:latest
     volumes:
-      #- ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certs:/certs
+      - ./mkcert.sh:/mkcert.sh
+    environment:
+      - domain=grafana.internal *.internal
+    command: sh /mkcert.sh
+
+  traefik:
+    image: traefik:v3.5
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+      - "0.0.0.0:8080:8080"
+    environment:
+      TRAEFIK_API_DASHBOARD: true
+      TRAEFIK_API_INSECURE: true
+    volumes:
+      - certs:/etc/traefik/certs:ro
+      - ./static.yml:/etc/traefik/static.yml:ro
+      - ./dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./acme.json:/etc/traefik/acme.json:rw
     networks:
       internal:
         ipv4_address: 172.20.0.198
+    command: --configFile=/etc/traefik/static.yml
+    depends_on:
+      mkcert:
+        condition: service_completed_successfully
 
   grafana:
     image: grafana/grafana:latest
     networks:
       internal:
-        ipv4_address: 172.20.0.100
     environment:
-      - GF_SERVER_ROOT_URL=http://grafana.internal
+      - GF_SERVER_ROOT_URL=https://grafana.internal
       - GF_SERVER_DOMAIN=grafana.internal
     volumes:
-      - grafana-data:/var/lib/grafana
+      - grafana:/var/lib/grafana
+
+  app:
+    image: nginx:alpine
+    networks:
+      internal:
 
   wireguard:
     image: linuxserver/wireguard:latest
@@ -60,10 +83,11 @@ services:
 networks:
   internal:
     driver: bridge
-    enable_ipv6: true
+    enable_ipv6: false
     ipam:
       config:
         - subnet: 172.20.0.0/24
 
 volumes:
-  grafana-data:
+  grafana:
+  certs:

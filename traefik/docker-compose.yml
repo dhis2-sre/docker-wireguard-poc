@@ -1,34 +1,33 @@
 services:
   cert-generator:
     image: alpine:latest
-    command: >
-      sh -c "apk add --no-cache openssl &&
-      mkdir -p /certs &&
-      openssl req -x509 -nodes -days 365 -newkey rsa:2048
-      -keyout /certs/app2-91-108-122-249.nip.io.key
-      -out /certs/app2-91-108-122-249.nip.io.crt
-      -subj '/CN=app2-91-108-122-249.nip.io'"
     volumes:
       - certs:/certs
+      - ./generate-cert.sh:/generate-cert.sh
+    command: sh /generate-cert.sh
+    environment:
+      APP_HOSTNAME: app2-91-108-122-249.nip.io
+      CERT_KEY_TYPE: rsa:2048
+      CERT_VALIDITY_DAYS: 365
 
   traefik:
     image: traefik:v3.5.0
     command:
       - "--providers.file.directory=/etc/traefik/dynamic"
-      - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.letsencrypt.acme.email=your-email@dhis2.org"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--api.dashboard=true"
-      - "--api.insecure=true"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--providers.file.watch=false"
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./traefik/dynamic:/etc/traefik/dynamic:ro
-      - ./letsencrypt:/letsencrypt
+      - letsencrypt:/letsencrypt
       - certs:/certs:ro
     depends_on:
       cert-generator:
@@ -42,3 +41,4 @@ services:
 
 volumes:
   certs:
+  letsencrypt:

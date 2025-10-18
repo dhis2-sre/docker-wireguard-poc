@@ -1,3 +1,4 @@
 .idea
 peer.conf
 wireguard
+acme.json
