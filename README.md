@@ -1,3 +1,7 @@
+Root project works in regard to wireguard but Traefik doens't redirect to https properly. However the project in the traefik folder does http to https redirect properly. Since this is a POC I'll leave it as is for now.
+
+
+
 # Docker Wireguard
 
 Once connected to VPN, you can access services on the network. Specifically `grafana.internal` will be available.
