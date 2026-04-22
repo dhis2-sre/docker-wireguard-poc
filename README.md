@@ -6,6 +6,10 @@
 
 Once connected to VPN, you can access services on the network. Specifically `grafana.internal` will be available.
 
+## DNS Resolution
+
+Internal `.internal` domains resolve dynamically via CoreDNS using `rewrite` + Docker DNS forwarding (`127.0.0.11`). Only CoreDNS has a static IP (`172.20.0.199`) — required by WireGuard's `PEERDNS`. All other services get dynamic IPs from Docker. To add a new internal service, add a `rewrite name <name>.internal <docker-service>` line to `coredns/Corefile`.
+
 ## Deploy
 
 ```shell

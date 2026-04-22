@@ -24,7 +24,6 @@ services:
       - ./acme.json:/etc/traefik/acme.json:rw
     networks:
       internal:
-        ipv4_address: 172.20.0.198
     command: --configFile=/etc/traefik/static.yml
     depends_on:
       mkcert:
@@ -68,13 +67,11 @@ services:
       - net.ipv4.conf.all.src_valid_mark=1
     networks:
       internal:
-        ipv4_address: 172.20.0.200
 
   coredns:
     image: coredns/coredns:latest
     volumes:
       - ./coredns/Corefile:/Corefile:ro
-      - ./coredns/db.internal:/db.internal:ro
     networks:
       internal:
         ipv4_address: 172.20.0.199
