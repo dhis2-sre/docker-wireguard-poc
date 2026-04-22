@@ -2,13 +2,7 @@
     loop
     health
     forward . 1.1.1.1 8.8.8.8
-    log
-    errors
-}
-
-internal:53 {
-    rewrite name grafana.internal traefik
-    forward . 127.0.0.11
+    rewrite name regex (.+)\.internal traefik
     log
     errors
 }
