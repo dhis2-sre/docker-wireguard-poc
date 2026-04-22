@@ -55,35 +55,21 @@ services:
       - SERVERURL=auto
       - SERVERPORT=51820
       - PEERS=laptop,phone,tablet
-      - PEERDNS=172.20.0.199
+      - PEERDNS=auto
       - INTERNAL_SUBNET=10.8.0.0
-      - ALLOWEDIPS=10.8.0.0/24,172.20.0.0/24
+      - ALLOWEDIPS=0.0.0.0/0,::/0
     volumes:
       - ./wireguard:/config
+      - ./coredns/Corefile:/config/coredns/Corefile:ro
     ports:
-      - "51822:51820/udp"
+      - "51820:51820/udp"
     sysctls:
-      # TODO: Is this necessary?
       - net.ipv4.conf.all.src_valid_mark=1
     networks:
       internal:
 
-  coredns:
-    image: coredns/coredns:latest
-    volumes:
-      - ./coredns/Corefile:/Corefile:ro
-    networks:
-      internal:
-        ipv4_address: 172.20.0.199
-    command: -conf /Corefile
-
 networks:
   internal:
-    driver: bridge
-    enable_ipv6: false
-    ipam:
-      config:
-        - subnet: 172.20.0.0/24
 
 volumes:
   grafana:
