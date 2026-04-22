@@ -1,8 +1,18 @@
 . {
     loop
     health
-    forward . 1.1.1.1 8.8.8.8
-    rewrite name regex (.+)\.internal traefik
+    forward . /etc/resolv.conf
+    log
+    errors
+}
+
+internal:53 {
+    template IN A internal {
+        match .*\.internal\.
+        answer "{{ .Name }} 60 IN CNAME traefik."
+        fallthrough
+    }
+    forward . /etc/resolv.conf
     log
     errors
 }
