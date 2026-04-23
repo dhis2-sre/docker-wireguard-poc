@@ -57,7 +57,7 @@ services:
       - PEERS=laptop,phone,tablet
       - PEERDNS=auto
       - INTERNAL_SUBNET=10.8.0.0
-      - ALLOWEDIPS=0.0.0.0/0,::/0
+      - ALLOWEDIPS=0.0.0.0/0
     volumes:
       - ./wireguard:/config
       - ./coredns/Corefile:/config/coredns/Corefile:ro
