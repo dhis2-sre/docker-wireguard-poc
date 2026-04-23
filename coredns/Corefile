@@ -1,11 +1,18 @@
-.:53 {
-    forward . 1.1.1.1 8.8.8.8
+. {
+    loop
+    health
+    forward . /etc/resolv.conf
     log
     errors
 }
 
 internal:53 {
-    file /db.internal
+    template IN A internal {
+        match .*\.internal\.
+        answer "{{ .Name }} 60 IN CNAME traefik."
+        fallthrough
+    }
+    forward . /etc/resolv.conf
     log
     errors
 }
